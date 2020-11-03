@@ -27,7 +27,7 @@ class PCM:
             return probabilties[mark]
 
     @classmethod
-    def train(cls,data,max_mark=None,max_step_count=5000):
+    def train(cls,response,thetas,max_mark=None,max_step_count=3000):
         """ Data comes in the Form:
               R1  R2  R3  .. Rn
         Item: 0   3   1   .. 2
@@ -35,13 +35,13 @@ class PCM:
         """
         ## assume the max mark achieved was the max available
         if max_mark == None:
-            max_mark = max(data[0])
-        elif max(data[0]) > max_mark:
+            max_mark = max(response)
+        elif max(response) > max_mark:
             raise ValueError("There is a response which has a higher mark than what has been set as achievable")
 
-        responses = np.zeros((max_mark+1, len(data[0])))
-        for r in range(len(data[0])):
-            responses[data[0][r],r] = 1
+        responses = np.zeros((max_mark+1, len(response)))
+        for r in range(len(response)):
+            responses[response[r],r] = 1
 
         ## Start our guesses for params randomly along the noraml dist
         g_alpha      = np.random.normal(0, 1, 1)[0]
@@ -53,8 +53,8 @@ class PCM:
         def calc_cost(alpha,bounds):
             current_model = cls(max_mark=max_mark,discrimination=alpha,boundaries=list(bounds))
             cost = 0
-            for i in range(len(data[1])):
-                cost += np.sum(np.square(responses[...,i] - current_model.predict(data[1][i])))/len(data[1])
+            for i in range(len(thetas)):
+                cost += np.sum(np.square(responses[...,i] - current_model.predict(thetas[i])))/len(thetas)
             return np.log(cost)
 
         def nabla():
@@ -79,9 +79,6 @@ class PCM:
 
         return cls(max_mark=max_mark,discrimination=g_alpha,boundaries=list(g_boundaries))
 
-
-
-
     def show(self):
         import matplotlib.pyplot as plt
         Theta = np.linspace(-8,8,600)
@@ -101,7 +98,7 @@ class PCM:
 
 
 print("Running")
-Model = PCM.train([[1,4,0,2],[-1,2,0,0.6]],max_mark=4)
+Model = PCM.train([1,4,0,2],[-1,2,0,0.6],max_mark=4)
 print(Model)
 Model.show()
 print("Done")
