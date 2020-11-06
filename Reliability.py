@@ -1,6 +1,6 @@
 import numpy as np
 
-def SpearmenBrown(data,split="half"):
+def spearmen_brown(data,split="half"):
     first_half = []
     second_half = []
     if split == "half":
@@ -19,10 +19,22 @@ def SpearmenBrown(data,split="half"):
     return 2*correlation/(1+correlation)
 
 
-print(SpearmenBrown(
-    [[0,1,3,2,4,6,7,1,0,2,0,3],
-    [1,1,2,2,1,1,3,0,4,3,1,0],
-    [2,0,3,4,1,0,4,1,6,2,0,2],
-    [0,3,0,2,3,3,6,0,3,3,1,3],
-    [1,2,1,1,4,5,2,1,0,2,2,4],]
+def cronbach_alpha (data):
+    data = np.array(data)
+
+    k = data.shape[1]
+
+    covariances = np.corrcoef(data)
+    v_bar = covariances.trace()/k
+    np.fill_diagonal(covariances, None)
+    c_bar = np.mean(covariances[~(np.isnan(covariances))])
+    
+    return k*c_bar/(v_bar + (k-1)*c_bar)
+
+print(cronbach_alpha(
+    [[10,20,30],
+    [30,40,50],
+    [50,60,70],
+    [70,80,90],
+    [90,100,110]]
 ))
